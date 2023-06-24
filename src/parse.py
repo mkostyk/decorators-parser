@@ -15,7 +15,7 @@ class Parser:
     def parse_global(self, data):
         global_decorators = re.findall(r'(@global\-[^\s]*)', data)
         if len(global_decorators) == 0:
-            return {}
+            return data, {}
         
         # Removing decorators from data
         for gd in global_decorators:
