@@ -11,3 +11,8 @@ class DecoratorNotFoundException(Exception):
 class InvalidValueException(Exception):
     ...
     pass
+
+
+class InvalidConstraintException(Exception):
+    ...
+    pass
