@@ -41,7 +41,7 @@ print(task_parser.parse_file('task.txt'))
 ```
 
 result:
-```
+```python
 [
 	{
 		'question': 'Who is Lincoln?'
@@ -75,7 +75,7 @@ print(task_parser.parse_file('task.txt'))
 ```
 
 result:
-```
+```python
 [
 	{
 		'topic': 'History',
