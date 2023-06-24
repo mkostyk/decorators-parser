@@ -15,6 +15,7 @@ class Parser:
 
         self.constraints = constraints
         pass
+        
 
     # Parse @global decorators
     def parse_global(self, data):
@@ -68,12 +69,15 @@ class Parser:
         if value == "":
             value = data.split(decorator)[1].split('@')[0].strip()
 
+        if name in result:
+            raise InvalidDecoratorException(self.original_data, decorator, f"Duplicate decorator '{name}'")
+
         if name in self.constraints:
             description = self.constraints[name]['description']
 
             # Checking constraint match
             if not re.fullmatch(self.constraints[name]['regex'], value):
-                raise InvalidValueException(f"'{name}' should be {description} but is {value}")
+                raise InvalidValueException(self.original_data, value, f"'{name}' should be {description} but is {value}")
             
         result[name] = value
 
@@ -99,6 +103,9 @@ class Parser:
     def parse_file(self, path):
         with open(path, 'r') as f:
             data = f.read()
+
+        # Save original data for error line messages
+        self.original_data = data
 
         # Parse global decorators
         data, global_dec = self.parse_global(data)

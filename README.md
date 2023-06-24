@@ -125,7 +125,7 @@ print(task_parser.parse_file('task.txt'))
 
 Will result in the following output:
 ```
-errors.InvalidValueException: 'correct' should be any number from 1 to 4 but is 11
+errors.InvalidValueException: Line 1: 'correct' should be any number from 1 to 4 but is 11
 ```
 
 #### Example 2
