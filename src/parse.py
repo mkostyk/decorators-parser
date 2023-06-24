@@ -8,7 +8,8 @@ import re
 
 
 class Parser:
-    def __init__(self):
+    def __init__(self, constraints={}):
+        self.constraints = constraints
         pass
 
     # Parse @global decorators
@@ -63,6 +64,16 @@ class Parser:
         if value == "":
             value = data.split(decorator)[1].split('@')[0].strip()
 
+        if name in self.constraints:
+            match = re.match(self.constraints[name], value)
+            if match is None:
+                raise InvalidValueException(f"Match not found for '{name} = {self.constraints[name]}' in {value}")
+            
+            match = match.group(0)
+            print(match)
+            if not match == value:
+                raise InvalidValueException(f"Match too short for '{name} = {self.constraints[name]}' in {value}")
+            
         result[name] = value
 
         return result

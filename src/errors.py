@@ -8,6 +8,6 @@ class DecoratorNotFoundException(Exception):
     pass
 
 
-class InvalidDecoratorException(Exception):
+class InvalidValueException(Exception):
     ...
     pass
