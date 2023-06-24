@@ -4,81 +4,99 @@
 
 from errors import *
 from utils import *
-
-# Splits file by @new decorator
-def split_by_new(data):
-    return data.split('@new')
+import re
 
 
-# Removes decorator and its value from data
-def remove_decorator(data):
-    splitted = data.split('@')
-    if len(splitted) < 2:
-        return ""
+class Parser:
+    def __init__(self):
+        pass
 
-    data = '@' + '@'.join(data.split('@')[2:])
-
-    return data
-
-
-# Handles a single decorator.
-def handle_decorator(data, result):
-    data = data.split('@')[1:]
-    if len(data) < 2:
-        raise DecoratorNotFoundException("No decorator found")
-    
-    data = data[0]
-    try:
-        decorator = data.split('(')[0]
-    except IndexError:
-        raise InvalidDecoratorException("Lacking opening parenthesis in decorator")
-    
-    value = None
-    # There are two options how to put value: @decorator(value) or @decorator() value
-    try:
-        value = data.split('(')[1].split(')')[0]
-    except IndexError:
-        raise InvalidDecoratorException("Lacking closing parenthesis in decorator")
-    
-    if value == "":
-        try:
-            value = data.split(')')[1].strip()
-        except IndexError:
-            raise InvalidDecoratorException("Lacking value in decorator")
-
-    result[decorator] = value
-
-    return result
-
-
-# Splits single data by decorators
-def split_by_decorators(data):
-    result = {}
-    while True:
-        try:
-            # Handle decorator and remove it from data
-            result = handle_decorator(data, result)
-        except DecoratorNotFoundException:
-            # No more decorators found
-            break
-        except InvalidDecoratorException:
-            print_err("Invalid decorator found, skipping")
+    # Parse @global decorators
+    def parse_global(self, data):
+        global_decorators = re.findall(r'(@global\-[^\s]*)', data)
+        if len(global_decorators) == 0:
+            return {}
         
-        data = remove_decorator(data)
-    return result
+        # Removing decorators from data
+        for gd in global_decorators:
+            data = data.replace(gd, '')
+        
+        # Removing @global- prefix from decorators
+        for i in range(len(global_decorators)):
+            global_decorators[i] = global_decorators[i].replace('@global-', '@')
+
+        gd_text = '\n'.join(global_decorators)
+        gd_result = self.create_result(gd_text, {})
+
+        return data, gd_result
 
 
-# Main function for parsing file
-def parse_file(path):
-    with open(path, 'r') as f:
-        data = f.read()
+    # Splits file by @new decorator
+    def split_by_new(self, data):
+        return data.split('@new')
 
-    # Split file by @new decorator
-    data = split_by_new(data)
 
-    results_list = []
-    for d in data:
-        # Split single data by decorators
-        results_list.append(split_by_decorators(d))
+    # Removes decorator and its value from data
+    def remove_decorator(self, data):
+        splitted = data.split('@')
+        if len(splitted) < 2:
+            return ""
 
-    return results_list
+        data = '@' + '@'.join(data.split('@')[2:])
+
+        return data
+
+
+    # Handles a single decorator.
+    def handle_decorator(self, data, result):      
+        decorator = re.search(r'(@[^\s]*\([^\s]*\))', data)
+        if decorator is None:
+            raise DecoratorNotFoundException("No more decorators found")
+        decorator = decorator.group(0)
+        
+        name = decorator.split('(')[0].split('@')[1]
+
+        # There are two options how to put value: @decorator(value) or @decorator() value
+        # Regex validation guarantees that neither this nor the next line will throw IndexError
+        value = decorator.split('(')[1].split(')')[0].strip()
+
+        if value == "":
+            value = data.split(decorator)[1].split('@')[0].strip()
+
+        result[name] = value
+
+        return result
+
+
+    # Handles all decorators in a single @new object
+    def create_result(self, data, global_dec):
+        result = global_dec.copy()
+        while True:
+            try:
+                # Handle decorator and remove it from data
+                result = self.handle_decorator(data, result)
+            except DecoratorNotFoundException:
+                # No more decorators found
+                break
+            
+            data = self.remove_decorator(data)
+        return result
+
+
+    # Main function for parsing file
+    def parse_file(self, path):
+        with open(path, 'r') as f:
+            data = f.read()
+
+        # Parse global decorators
+        data, global_dec = self.parse_global(data)
+
+        # Split file by @new decorator
+        data = self.split_by_new(data)
+
+        results_list = []
+        for d in data:
+            # Handle a single @new object
+            results_list.append(self.create_result(d, global_dec))
+
+        return results_list
