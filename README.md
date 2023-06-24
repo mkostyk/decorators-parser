@@ -1,5 +1,8 @@
 ## Decorators Parser
 
+### License
+© 2023 Smartschool Inc. All rights reserved.
+
 ### Standard decorators
 Decorators can be used in one of two ways:
 ```
