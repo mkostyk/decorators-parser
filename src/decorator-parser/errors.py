@@ -5,6 +5,7 @@
 
 from utils import FAIL, ENDC, BOLD
 
+# TODO: this is not perfect
 def line_number(data, line):
     matches = data.split(line)
     return len(matches[0].split('\n'))

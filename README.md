@@ -94,7 +94,7 @@ result:
 ### Constraints
 
 Decorators can use constraints on their values. If a decorator has value that does not match regular expression
-provided Parser will throw `InvalidValueException`. Parser class takes optional `constraints` argument in its constructor which
+provided, Parser will throw `InvalidValueException`. Parser class takes optional `constraints` argument in its constructor which
 is a Python dictionary in a format shown below (if format of the given dictionary is invalid, `InvalidConstraintException` will be thrown):
 ```python
 example = {
