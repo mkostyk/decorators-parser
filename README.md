@@ -56,7 +56,7 @@ What is the purpose of the Bill of Rights?
 
 run.py:
 ```python
-from parse import Parser
+from decorator_parser.parse import Parser
 task_parser = Parser()
 print(task_parser.parse_file('task.txt'))
 ```
@@ -90,7 +90,7 @@ What is the purpose of the Bill of Rights?
 
 run.py:
 ```python
-from parse import Parser
+from decorator_parser.parse import Parser
 task_parser = Parser()
 print(task_parser.parse_file('task.txt'))
 ```
@@ -139,7 +139,7 @@ task.txt:
 
 run.py:
 ```python
-from parse import Parser
+from decorator_parser.parse import Parser
 task_parser = Parser(example)
 print(task_parser.parse_file('task.txt'))
 ```

@@ -1,6 +1,6 @@
 # Author: Michał Kostyk for Smartschool Inc.
 # Date: 2023
-# Version: 1.0.0
+# Version: 1.0.3
 # Description: Custom errors for the project.
 
 from utils import FAIL, ENDC, BOLD
