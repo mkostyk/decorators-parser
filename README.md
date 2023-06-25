@@ -3,8 +3,21 @@
 ### License
 © 2023 Smartschool Inc. All rights reserved.
 
+### Installation guide
+1. Install Python 3.7 or newer from [https://www.python.org/downloads/](https://www.python.org/downloads/)
+2. Install PIP using [this guide](https://pip.pypa.io/en/stable/installation/)
+3. Run `pip install decorator-parser` in your command line
+
+### Decorators format
+Decorator name can be any string that does not contain '@' character or a newline character. There should be no whitespaces after the decorator name nor after its closing parenthesis. Decorator can, but does not have to end with a newline. If a decorator does not satisfy these requirements `InvalidDecoratorException` will be thrown.
+
+#### Example:
+```
+@decorator(some nice value)
+```
+
 ### Standard decorators
-Decorators can be used in one of two ways:
+Decorators can be used in one of three ways:
 ```
 @decorator(value)
 ```
@@ -13,8 +26,13 @@ or
 @decorator()
 Some very long and complicated value that would be hard to read if it were in parenthesis like the value above.
 ```
+or
+```
+@decorator
+Some very long and complicated value that would be hard to read if it were in parenthesis like the value above.
+```
 
-Both of these create Python dictionary like this:
+All of these create Python dictionary like this:
 ```python
 {
     'decorator': 'value'
@@ -23,7 +41,7 @@ Both of these create Python dictionary like this:
 
 ### @new decorator
 
-Using @new decorator starts a new dictionary and adds it to the current list of dictionaries
+Using @new decorator starts a new dictionary and adds it to the current list of dictionaries. In a single piece of text between two @new decorators (which correspond to a single Python dictionary) there can not be two decorators with the same name. Using a same name without an appropriate @new decorator will result in `DuplicateDecoratorException` being thrown.
 
 #### Example:
 task.txt:
@@ -140,7 +158,7 @@ correct(1)
 The output will be:
 ```python
 [
-	{
-		'correct': '1'
-	}
+    {
+        'correct': '1'
+    }
 ]

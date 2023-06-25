@@ -45,7 +45,9 @@ class Parser:
     # Removes decorator and its value from data
     def remove_decorator(self, data):
         splitted = data.split('@')
-        if len(splitted) < 2:
+        # This means that splitted looks like ['', decorator] right now, so it
+        # is the last decorator, and after deletion we want it to be ""
+        if len(splitted) <= 2:
             return ""
 
         data = '@' + '@'.join(data.split('@')[2:])
@@ -54,30 +56,46 @@ class Parser:
 
 
     # Handles a single decorator.
-    def handle_decorator(self, data, result):      
-        decorator = re.search(r'(@[^\s]*\([^\s]*\))', data)
-        if decorator is None:
+    def handle_decorator(self, data, result):
+        # Look for the first @ in the file - it is a candidate for a decorator
+        candidate = re.search(r'(@[^\n]*$)', data, re.MULTILINE)
+        if candidate is None:
             raise DecoratorNotFoundException("No more decorators found")
+        candidate = candidate.group(0)
+        
+        # Look for a legit decorator
+        decorator = re.search(r'(@[^\s]*$)', data, re.MULTILINE)
+        if decorator is None:
+            raise InvalidDecoratorException(self.original_data, candidate, "Invalid decorator")
         decorator = decorator.group(0)
+
+        # Check if decorator is the same as candidate
+        if not decorator == candidate:
+            raise InvalidDecoratorException(self.original_data, candidate, "Invalid decorator")
         
         name = decorator.split('(')[0].split('@')[1]
+        decor_with_val = decorator # For error messages
+        value = ""
 
-        # There are two options how to put value: @decorator(value) or @decorator() value
-        # Regex validation guarantees that neither this nor the next line will throw IndexError
-        value = decorator.split('(')[1].split(')')[0].strip()
+        # Value can be put in brackets or after decorator
+        try:
+            value = decorator.split('(')[1].split(')')[0].strip()
+        except IndexError:
+            pass
 
         if value == "":
             value = data.split(decorator)[1].split('@')[0].strip()
+            decor_with_val += value
 
         if name in result:
-            raise InvalidDecoratorException(self.original_data, decorator, f"Duplicate decorator '{name}'")
+            raise DuplicateDecoratorException(f"Duplicate decorator '{name}'")
 
         if name in self.constraints:
             description = self.constraints[name]['description']
 
             # Checking constraint match
             if not re.fullmatch(self.constraints[name]['regex'], value):
-                raise InvalidValueException(self.original_data, value, f"'{name}' should be {description} but is {value}")
+                raise InvalidValueException(self.original_data, decor_with_val, f"'{name}' should be {description} but is {value}")
             
         result[name] = value
 
