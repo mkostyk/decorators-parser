@@ -9,7 +9,8 @@
 3. Run `pip install decorator-parser` in your command line
 
 ### Decorators format
-Decorator name can be any string that does not contain '@' character or a newline character. There should be no whitespaces after the decorator name nor after its closing parenthesis. Decorator can, but does not have to end with a newline. If a decorator does not satisfy these requirements `InvalidDecoratorException` will be thrown.
+Decorator name can be any string that does not contain '@' character. If decorator
+does not satisfy this requirement `InvalidDecoratorException` will be thrown.
 
 #### Example:
 ```

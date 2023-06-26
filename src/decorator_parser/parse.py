@@ -1,6 +1,6 @@
 # Author: Michał Kostyk for Smartschool Inc.
 # Date: 2023
-# Version: 1.0.3
+# Version: 1.0.4
 
 from errors import *
 from utils import *
@@ -19,7 +19,7 @@ class Parser:
 
     # Parse @global decorators
     def parse_global(self, data):
-        global_decorators = re.findall(r'(@global\-[^\s]*)', data)
+        global_decorators = re.findall(r'(@global\-[^\n]*)', data)
         if len(global_decorators) == 0:
             return data, {}
         
@@ -27,10 +27,6 @@ class Parser:
         for gd in global_decorators:
             data = data.replace(gd, '')
         
-        # Removing @global- prefix from decorators
-        for i in range(len(global_decorators)):
-            global_decorators[i] = global_decorators[i].replace('@global-', '@')
-
         gd_text = '\n'.join(global_decorators)
         gd_result = self.create_result(gd_text, {})
 
@@ -56,24 +52,23 @@ class Parser:
 
 
     # Handles a single decorator.
-    def handle_decorator(self, data, result):
-        # Look for the first @ in the file - it is a candidate for a decorator
-        candidate = re.search(r'(@[^\n]*$)', data, re.MULTILINE)
-        if candidate is None:
-            raise DecoratorNotFoundException("No more decorators found")
-        candidate = candidate.group(0)
-        
-        # Look for a legit decorator
-        decorator = re.search(r'(@[^\s]*$)', data, re.MULTILINE)
+    def handle_decorator(self, data, result):       
+        # Look for a decorator
+        decorator = re.search(r'(@[^\n]*$)', data, re.MULTILINE)
         if decorator is None:
-            raise InvalidDecoratorException(self.original_data, candidate, "Invalid decorator")
+            raise DecoratorNotFoundException("No more decorators found")
         decorator = decorator.group(0)
 
-        # Check if decorator is the same as candidate
-        if not decorator == candidate:
-            raise InvalidDecoratorException(self.original_data, candidate, "Invalid decorator")
+        # Check if decorator is valid
+        if re.search(r'(@[^\n]*@[^\n]*$)', decorator, re.MULTILINE) is not None:
+            raise InvalidDecoratorException(self.original_data, decorator, "Invalid decorator")
         
+        is_global = re.search(r'(@global\-[^\n]*)', decorator) is not None       
         name = decorator.split('(')[0].split('@')[1]
+        if is_global:
+            # Removing global- prefix from name
+            name = name.replace('global-', '')
+
         decor_with_val = decorator # For error messages
         value = ""
 
