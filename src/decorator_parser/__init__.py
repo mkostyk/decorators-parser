@@ -1,3 +1,3 @@
-from errors import *
-from utils import *
+from . import errors
+from . import utils
 from parse import Parser
