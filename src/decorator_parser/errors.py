@@ -3,7 +3,7 @@
 # Version: 1.0.3
 # Description: Custom errors for the project.
 
-from utils import FAIL, ENDC, BOLD
+from decorator_parser.utils import FAIL, ENDC, BOLD
 
 def line_number(data, line):
     matches = data.split(line)
