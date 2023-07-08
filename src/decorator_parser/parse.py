@@ -1,9 +1,9 @@
 # Author: Michał Kostyk for Smartschool Inc.
 # Date: 2023
-# Version: 1.0.5
+# Version: 1.0.6
 
-from errors import *
-from utils import *
+from decorator_parser.utils import *
+from decorator_parser.errors import *
 import re
 
 
