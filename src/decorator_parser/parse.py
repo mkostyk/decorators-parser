@@ -1,6 +1,6 @@
 # Author: Michał Kostyk for Smartschool Inc.
 # Date: 2023
-# Version: 1.0.4
+# Version: 1.0.5
 
 from errors import *
 from utils import *
@@ -91,7 +91,7 @@ class Parser:
             # Checking constraint match
             if not re.fullmatch(self.constraints[name]['regex'], value):
                 raise InvalidValueException(self.original_data, decor_with_val, f"'{name}' should be {description} but is {value}")
-            
+        
         result[name] = value
 
         return result
