@@ -163,3 +163,32 @@ The output will be:
         'correct': '1'
     }
 ]
+```
+
+### Ignored decorators
+
+If you need to use @ symbol for something else than decorator, you can specify
+names to exclude from the search
+
+#### Example:
+task.txt:
+```
+@question
+Some long question with @ref in it
+```
+
+run.py:
+```python
+from decorator_parser.parse import Parser
+task_parser = Parser(ignored=['ref'])
+print(task_parser.parse_file('task.txt'))
+```
+
+Will result in the following output:
+```python
+[
+    {
+        'question': 'Some long question with @ref in it'
+    }
+]
+```

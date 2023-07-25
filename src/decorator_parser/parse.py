@@ -2,21 +2,44 @@
 # Date: 2023
 # Version: 1.0.6
 
-from decorator_parser.utils import *
-from decorator_parser.errors import *
+from decorators_parser.utils import *
+from decorators_parser.errors import *
 import re
 
 
 class Parser:
-    def __init__(self, constraints={}):
+    def __init__(self, constraints={}, ignored={}):
         for key in constraints:
             if not 'regex' in constraints[key] or not 'description' in constraints[key]:
                 raise InvalidConstraintException(f"Invalid constraint for '{key}'")
 
         self.constraints = constraints
+        self.ignored = ignored
         pass
-        
+    
 
+    def parse_ignored(self, data):
+        for ignored_tag in self.ignored:
+            regex = r"(@" + re.escape(ignored_tag) + r")"
+            ignored_decorators = re.findall(regex, data)
+
+            if len(ignored_decorators) == 0:
+                continue
+            
+            decor = ignored_decorators[0]
+            decor_no_first = decor[1:]
+            data = data.replace(decor, MAGIC_CHAR + decor_no_first)
+
+        return data
+
+
+    def restore_ignored(self, result):
+        for key in result:
+            result[key] = result[key].replace(MAGIC_CHAR, "@")
+
+        return result
+    
+    
     # Parse @global decorators
     def parse_global(self, data):
         global_decorators = re.findall(r'(@global\-[^\n]*)', data)
@@ -109,7 +132,8 @@ class Parser:
                 break
             
             data = self.remove_decorator(data)
-        return result
+
+        return self.restore_ignored(result)
 
 
     # Main function for parsing file
@@ -119,6 +143,8 @@ class Parser:
 
         # Save original data for error line messages
         self.original_data = data
+
+        data = self.parse_ignored(data)
 
         # Parse global decorators
         data, global_dec = self.parse_global(data)
