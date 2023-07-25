@@ -2,8 +2,8 @@
 # Date: 2023
 # Version: 1.0.6
 
-from decorators_parser.utils import *
-from decorators_parser.errors import *
+from decorator_parser.utils import *
+from decorator_parser.errors import *
 import re
 
 
