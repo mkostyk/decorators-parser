@@ -8,6 +8,15 @@
 2. Install PIP using [this guide](https://pip.pypa.io/en/stable/installation/)
 3. Run `pip install decorator-parser` in your command line
 
+
+### API
+#### parse
+```python
+def parse(self, path=None, data=None)
+```
+Parses given string or file and returns a list of dictionaries. If both `path` and `data` are provided, `data` will be ignored.
+
+
 ### Decorators format
 Decorator name can be any string that does not contain '@' character. If decorator
 does not satisfy this requirement `InvalidDecoratorException` will be thrown.

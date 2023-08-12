@@ -1,6 +1,6 @@
 # Author: Michał Kostyk for Smartschool Inc.
 # Date: 2023
-# Version: 1.0.3
+# Version: 1.2.0
 # Description: Custom errors for the project.
 
 from decorator_parser.utils import FAIL, ENDC, BOLD
@@ -46,5 +46,10 @@ class InvalidDecoratorException(ExceptionWithLine):
 
 
 class InvalidValueException(ExceptionWithLine):
+    ...
+    pass
+
+
+class NoDataException(FailException):
     ...
     pass

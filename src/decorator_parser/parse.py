@@ -1,6 +1,6 @@
 # Author: Michał Kostyk for Smartschool Inc.
 # Date: 2023
-# Version: 1.0.6
+# Version: 1.2.0
 
 from decorator_parser.utils import *
 from decorator_parser.errors import *
@@ -18,7 +18,7 @@ class Parser:
         pass
     
 
-    def parse_ignored(self, data):
+    def __parse_ignored(self, data):
         for ignored_tag in self.ignored:
             regex = r"(@" + re.escape(ignored_tag) + r")"
             ignored_decorators = re.findall(regex, data)
@@ -33,7 +33,7 @@ class Parser:
         return data
 
 
-    def restore_ignored(self, result):
+    def __restore_ignored(self, result):
         for key in result:
             result[key] = result[key].replace(MAGIC_CHAR, "@")
 
@@ -41,7 +41,7 @@ class Parser:
     
     
     # Parse @global decorators
-    def parse_global(self, data):
+    def __parse_global(self, data):
         global_decorators = re.findall(r'(@global\-[^\n]*)', data)
         if len(global_decorators) == 0:
             return data, {}
@@ -57,12 +57,12 @@ class Parser:
 
 
     # Splits file by @new decorator
-    def split_by_new(self, data):
+    def __split_by_new(self, data):
         return data.split('@new')
 
 
     # Removes decorator and its value from data
-    def remove_decorator(self, data):
+    def __remove_decorator(self, data):
         splitted = data.split('@')
         # This means that splitted looks like ['', decorator] right now, so it
         # is the last decorator, and after deletion we want it to be ""
@@ -75,7 +75,7 @@ class Parser:
 
 
     # Handles a single decorator.
-    def handle_decorator(self, data, result):       
+    def __handle_decorator(self, data, result):       
         # Look for a decorator
         decorator = re.search(r'(@[^\n]*$)', data, re.MULTILINE)
         if decorator is None:
@@ -121,40 +121,44 @@ class Parser:
 
 
     # Handles all decorators in a single @new object
-    def create_result(self, data, global_dec):
+    def __create_result(self, data, global_dec):
         result = global_dec.copy()
         while True:
             try:
                 # Handle decorator and remove it from data
-                result = self.handle_decorator(data, result)
+                result = self.__handle_decorator(data, result)
             except DecoratorNotFoundException:
                 # No more decorators found
                 break
             
-            data = self.remove_decorator(data)
+            data = self.__remove_decorator(data)
 
-        return self.restore_ignored(result)
+        return self.__restore_ignored(result)
 
 
     # Main function for parsing file
-    def parse_file(self, path):
-        with open(path, 'r') as f:
-            data = f.read()
+    def parse(self, path=None, data=None):
+        if path is None and data is None:
+            raise NoDataException("No data or path provided")
+        
+        if path is not None:
+            with open(path, 'r') as f:
+                data = f.read()
 
         # Save original data for error line messages
         self.original_data = data
 
-        data = self.parse_ignored(data)
+        data = self.__parse_ignored(data)
 
         # Parse global decorators
-        data, global_dec = self.parse_global(data)
+        data, global_dec = self.__parse_global(data)
 
         # Split file by @new decorator
-        data = self.split_by_new(data)
+        data = self.__split_by_new(data)
 
         results_list = []
         for d in data:
             # Handle a single @new object
-            results_list.append(self.create_result(d, global_dec))
+            results_list.append(self.__create_result(d, global_dec))
 
         return results_list
